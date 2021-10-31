@@ -29,8 +29,8 @@ Route::group(['prefix' => 'v1'], function () {
 
     Route::post('sanctum/token', 'userTokenController');
 
-    Route::apiresource('products', 'ProductController');
     Route::group(['middleware' => 'auth:sanctum'], function () {
+        Route::apiresource('products', 'ProductController');
     });
 });
 

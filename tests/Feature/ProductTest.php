@@ -3,12 +3,13 @@
 namespace Tests\Feature;
 
 use App\User;
-use Laravel\Sanctum\Sanctum;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
+use App\Product;
 use Tests\TestCase;
-
+use Laravel\Sanctum\Sanctum;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 class ProductTest extends TestCase
+
 {
     Protected function setUp(): void
     {
@@ -41,12 +42,12 @@ class ProductTest extends TestCase
      */
     public function testProductIndex()
     {
-        \App\Product::truncate();
-        factory(\App\Product::class, 100)->create();
+        Product::truncate();
+        factory(Product::class, 100)->create();
         $response = $this->getJson('api/v1/products');
         $response->assertHeader('Content-Type', 'application/json');
         $response->assertSuccessful();
-        $response->assertJsonCount(100);
+        $response->assertJsonCount(100, 'data');
     }
 
     /**
@@ -72,7 +73,7 @@ class ProductTest extends TestCase
             'price' =>  '100',
             'name'  =>  'Product Test'
         ];
-        $product = factory(\App\Product::class)->create($data);
+        $product = factory(Product::class)->create($data);
         $data['name'] = 'Product Test Update';
         $response = $this->putJson("api/v1/products/$product->id", $data);
         $response->assertHeader('Content-Type', 'application/json');
@@ -82,16 +83,22 @@ class ProductTest extends TestCase
 
     public function testProductShow()
     {
-        $product = factory(\App\Product::class)->create();
+        $product = factory(Product::class)->create();
         $response = $this->getJson("api/v1/products/$product->id");
         $response->assertHeader('Content-Type', 'application/json');
         $response->assertSuccessful();
-        $response->assertJson($product->toArray());
+        $response->assertJson([
+            'data' => [
+                'id'    => $product->id,
+                'name'  => $product->name,
+                'price' => $product->price
+            ]
+        ]);
     }
 
     public function testProductDelete()
     {
-        $product = factory(\App\Product::class)->create();
+        $product = factory(Product::class)->create();
         $response = $this->deleteJson("api/v1/products/$product->id");
         $response->assertHeader('Content-Type', 'application/json');
         $response->assertSuccessful();
